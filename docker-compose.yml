@@ -1,0 +1,44 @@
+version: '3'
+services:
+  web-frontend:
+    build:
+      context: web-frontend
+      dockerfile: deployment/development/Dockerfile
+    volumes:
+      - ./web-frontend:/web-frontend/
+    depends_on: 
+      - web-backend
+
+  web-backend:
+    build:
+      context: web-backend
+      dockerfile: deployment/development/Dockerfile
+    volumes: 
+      - ./web-backend:/var/www/
+      # - ./web-frontend:/var/www/web-frontend
+    links:
+      - database
+
+  nginx:
+    build:
+      context: nginx
+      dockerfile: deployment/development/Dockerfile
+    ports:
+      - 3000:80
+    volumes:
+      - ./web-backend:/var/www/
+    links:
+      - web-backend
+      - web-frontend
+
+  database:
+    image: postgres:latest
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: '${DB_DATABASE}'
+      POSTGRES_USER: '${DB_USERNAME}'
+      POSTGRES_PASSWORD: '${DB_PASSWORD}'
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+      # POSTGRES_ROOT_PASSWORD: '${DB_PASSWORD}'
+      # MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
