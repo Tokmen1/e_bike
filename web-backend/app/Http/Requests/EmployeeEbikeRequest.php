@@ -27,7 +27,7 @@ class EmployeeEbikeRequest extends FormRequest
             'id' => ['integer'],
             'employee_id' => ['required','integer'],
             'e_bike_id' => ['required', 'integer'],
-            'date_from' => ['required', 'integer'],
+            'date_from' => ['required'],
             'date_to' => []
         ];
     }

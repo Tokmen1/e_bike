@@ -4,15 +4,22 @@
       <b-card>
         <b-row>
           <b-col>
-            <h4>Darbinieku elektroskūteri</h4>
+            <h4>Darbinieku elektriskie velosipēdi</h4>
           </b-col>
           <b-col md="auto">
             <b-button-group>
-                <button v-if="!contentIsLoading" class="mb-3" variant="primary" 
-                :to="{ name: 'SowingCreate', params:{ field_id: this.fieldId } }"
+                <b-button v-if="!contentIsLoading" class="mb-3" variant="primary" 
+                :to="{ name: 'EmployeeEbikeCreate' }"
                 >
-                  Pievienot jaunus sējas datus
-                </button>
+                  Pievienot jaunu
+                </b-button>
+            </b-button-group>
+          </b-col>
+          <b-col md="auto">
+            <b-button-group>
+            <b-button v-if="!isHidden" variant="primary" @click="printer()" >
+                  Printēt
+                </b-button>
             </b-button-group>
           </b-col>
         </b-row>
@@ -20,20 +27,13 @@
           <b-col>
             <b-form-group>
               <b-input-group>
-                <b-form-input v-model="filters.search" placeholder="Meklēt..." debounce="700"></b-form-input>
-                <b-input-group-append>
-                  <b-button variant="primary" @click="getData()"><b-icon icon="search" /></b-button>
-                </b-input-group-append>
-              </b-input-group>
-              <b-input-group>
-                <b-form-input v-model="filters.startDateSearch" type="date" placeholder="Meklēt..." debounce="700"></b-form-input>
-                <b-form-input v-model="filters.endDateSearch" type="date" placeholder="Meklēt..." debounce="700"></b-form-input>
+                <label>Datums no: </label>
+                <b-form-input v-model="filters.search_date_from" type="date" debounce="700"></b-form-input>
+                <label>Datums līdz: </label>
+                <b-form-input v-model="filters.search_date_to" type="date" debounce="700"></b-form-input>
               </b-input-group>
             </b-form-group>
           </b-col>
-          <!-- <b-col md="auto" v-if="tableItems.length">
-            <Pagination class="pull-right" :data="listPaginator" :limit="5" @pagination-change-page="onPageChange"/>
-          </b-col> -->
         </b-row>
         <div v-if="contentIsLoading" class="text-center">
           <b-spinner type="grow" variant="primary"/>
@@ -49,14 +49,12 @@
               </div>
               <b-table v-else class="table-sm text-center" responsive bordered
                   :no-local-sorting=true
-                  :sort-by.sync="filters.sort_field"
-                  :sort-desc.sync="filters.sort_order"
                   :fields="tableFields"
                   :items="tableItems"
                   >
                 <template v-slot:cell(options)="row">
                   <div class="flex-container options-center">
-                  <router-link :to="{ name: 'SowingUpdate', params:{ id: row.item.id }}">
+                  <router-link :to="{ name: 'EmployeeEbikeUpdate', params:{ id: row.item.id }}">
                     <a><i class="mx-1 fa fa-edit fa-lg"/></a>
                     <b-btn variant="primary" class="mx-1">Rediģēt</b-btn>
                   </router-link>
@@ -66,11 +64,6 @@
               </b-table>
             </b-col>
           </b-row>
-          <!-- <b-row>
-            <b-col v-if="tableItems.length">
-              <Pagination :data="listPaginator" :limit="5" @pagination-change-page="onPageChange"/>
-            </b-col>
-          </b-row> -->
         </div>
       </b-card>
     </div>
@@ -78,7 +71,6 @@
 </template>
 
 <script>
-// import Pagination from 'laravel-vue-pagination';
 import Services from '@/services/index';
 import AlertMixin from '@/mixins/AlertMixin';
 export default {
@@ -92,48 +84,35 @@ export default {
         data: {},
       },
       tableFields: [
-        { key: 'id', sortable: true, label: 'ID' },
-        { key: 'employee_id', sortable: true, label: 'Employee_id' },
-        { key: 'e_bike_id', sortable: true, label: 'Priekšaugs' },
-        { key: 'date_from', sortable: true, label: 'Sākuma datums' },
-        { key: 'date_to', sortable: true, label: 'Noslēguma datums' },
+        { key: 'first_name', label: 'Vārds' },
+        { key: 'last_name', label: 'Uzvārds' },
+        { key: 'email', label: 'E-pasts' },
+        { key: 'brand', label: 'Elektroritenis' },
+        { key: 'odometer', label: 'Odometrs (km)' },
+        { key: 'date_from', label: 'Sākuma datums' },
+        { key: 'date_to', label: 'Noslēguma datums' },
         { key: 'options', label: 'Iespējas' },
       ],
       filters: {
-        sort_field: 'date_from',
-        sort_order: true,
         search: '',
-        startDateSearch: '',
-        endDateSearch: ''
-      }
+        search_date_from: '',
+        search_date_to: ''
+      },
+      isHidden: false,
+      timer: 0,
     };
   },
-//   components: {
-//     Pagination
-//   },
   computed: {
-    // filteredRecords() {
-    //   return this.list.data.filter((record) => {
-    //     return record.match(this.filters.search);
-    //   });
-    // },
-    // listPaginator() {
-    //   return Object.is(this.list.data, undefined) ? {} : this.list.data.meta;
-    // },
     tableItems() {
       return this.list.data.data || [];
     },
     contentIsLoading() {
       return false;
     },
-    fieldId() {
-      return this.$route.params.field_id;
-    },
     params() {
       return {
         ...this.filters,
         page: this.page,
-        sort_order: this.filters.sort_order ? 'desc' : 'asc'
       };
     },
   },
@@ -142,22 +121,27 @@ export default {
     filters: { deep: true, handler: 'getData' },
   },
   methods: {
+    printer(){
+      this.isHidden = true;
+      setTimeout(function(){ window.print(); }, 100)
+      setTimeout(function(){this.isHidden = false; }, 5000);
+    },
     deleteData($my_id) {
       if (confirm('Vai tiešām vēlaties izdzēst?')){
-        Services.sowing.delete($my_id).then(() => {
+        Services.employeeEbike.delete($my_id).then(() => {
           this.getData();
           this.alertSuccess({text: 'Atlasītais ierakst ir veiksmīgi dzēsts!', title: 'Veiksmīgi dzēsts'});
         }).catch(err => console.log(err));
       }
     },
     getData() {
-      Services.sowing.list(this.params).then((data) => {
+      Services.employeeEbike.list(this.params).then((data) => {
         this.list.data = data.data;
       });
     },
     onPageChange(page) {
       page = page || this.page;
-      if (page !== this.page) this.$router.push({ name: 'Sowing', params: { page } });
+      if (page !== this.page) this.$router.push({ name: 'EmployeeEbike', params: { page } });
     },
   },
   mixins: [AlertMixin]

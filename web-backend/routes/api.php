@@ -38,12 +38,12 @@ Route::prefix('employee')->group(function () {
     Route::delete('{employee}', 'App\Http\Controllers\EmployeeController@delete');
 });
 
-Route::prefix('employeeEBike')->group(function () {
+Route::prefix('employeeEbike')->group(function () {
     Route::get('/', 'App\Http\Controllers\EmployeeEBikeController@index');
     Route::get('/create', 'App\Http\Controllers\EmployeeEBikeController@create');
     Route::post('/', 'App\Http\Controllers\EmployeeEBikeController@store');
-    Route::get('{employeeEBike}', 'App\Http\Controllers\EmployeeEBikeController@show');
-    Route::get('{employeeEBike}/edit', 'App\Http\Controllers\EmployeeEBikeController@edit');
-    Route::put('{employeeEBike}', 'App\Http\Controllers\EmployeeEBikeController@update');
-    Route::delete('{employeeEBike}', 'App\Http\Controllers\EmployeeEBikeController@delete');
+    Route::get('{employeeEbike}', 'App\Http\Controllers\EmployeeEBikeController@show');
+    Route::get('{employeeEbike}/edit', 'App\Http\Controllers\EmployeeEBikeController@edit');
+    Route::put('{employeeEbike}', 'App\Http\Controllers\EmployeeEBikeController@update');
+    Route::delete('{employeeEbike}', 'App\Http\Controllers\EmployeeEBikeController@delete');
 });
