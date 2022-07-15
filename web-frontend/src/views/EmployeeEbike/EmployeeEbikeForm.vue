@@ -13,13 +13,6 @@
         <b-spinner type="grow" variant="primary"/>
       </div>
       <div v-else>
-
-
-        <!-- <template>
-            <b-dropdown v-model="entity.e_bike_id" text="Elektroritenis" variant="outline-secondary">
-                <b-dropdown-item v-bind:ebikeId="ebike.data.data[i-1].id" v-for="i in ebike.data.data.length" :key="i">{{ebike.data.data[i-1].brand +" "+ ebike.data.data[i-1].odometer +" km"}}</b-dropdown-item>
-            </b-dropdown>
-        </template> -->
         <template>
           <b-form-group :invalid-feedback="fErr(entity.employee_id, 'Darbinieks:')">
             <label>Darbinieks:</label>
