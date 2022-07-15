@@ -19,7 +19,7 @@ Nokopēt faila "web-backend/example.env" saturu un ielīmēt to jaunizveidotajā
 * php artisan tinker
 * Employee::factory()->count(20)->create()
 * Ebike::factory()->count(20)->create()
-* EmployeeEbike::factory()->count(20)->create()
+* EmployeeEbike::factory()->count(8)->create()
 
 ## Palaist projektu lokāli
 * service docker start
